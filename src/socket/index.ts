@@ -11,11 +11,9 @@ const redis = getRedis();
 
 export function socketSetup(io: typeof Server) {
     io.on('connection', (socket: Socket) => {
-        console.log(`Connected from backend: ${socket.id}`);
-        socket.on('message', async (message: string) => {
-            await redis.lpush('messages', JSON.stringify({user: socket.id, message: message}));
-            console.log('Pushing to redis');
-            socket.emit('message', message);
+        socket.on('message', async ({ username, message }: { username: string; message: string }) => {
+            await redis.lpush('messages', JSON.stringify({user: username, message: message}));
+            socket.emit('message', { user: username, message: message });
         });
     });
 }
