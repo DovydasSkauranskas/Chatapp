@@ -14,9 +14,18 @@ function connectToSocket() {
         console.log(`User with id ${socket.id} connected`);
     });
 
-    socket.on('message', message => {
-        console.log(`Incoming message: ${message}`);
+    socket.on('message', (messageObject) => {
+        addMessagesToChatBox(messageObject.user, messageObject.message, messageObject.user === username);
     });
+}
+
+function addMessagesToChatBox(user, message, isCurrentUser) {
+    const chatBox = document.getElementById('chatBox');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', isCurrentUser ? 'user': 'other');
+    messageElement.textContent = `${isCurrentUser ? 'You' : user}: ${message}`;
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 async function fetchMessages() {
@@ -27,12 +36,10 @@ async function fetchMessages() {
             throw new Error('Error fetching messages');
         }
         const messages = dataObject.data;
-        const chatBox = document.getElementById('chatBox');
 
+        const username = localStorage.getItem('username');
         messages.reverse().forEach(({ user, message }) => {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = `${user}: ${message}`;
-            chatBox.appendChild(messageElement);
+            addMessagesToChatBox(user, message, user === username);
         });
     } catch (error) {
         console.log(error);
@@ -56,11 +63,5 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             messageButton.click();
         }
-    });
-
-    socket.on('message', (messageObject) => {
-        const messageElement = document.createElement('div');
-        messageElement.textContent = `${messageObject.user}: ${messageObject.message}`;
-        chatBox.appendChild(messageElement);
     });
 });

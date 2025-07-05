@@ -13,7 +13,7 @@ export function socketSetup(io: typeof Server) {
     io.on('connection', (socket: Socket) => {
         socket.on('message', async ({ username, message }: { username: string; message: string }) => {
             await redis.lpush('messages', JSON.stringify({user: username, message: message}));
-            socket.emit('message', { user: username, message: message });
+            io.emit('message', { user: username, message: message });
         });
     });
 }
