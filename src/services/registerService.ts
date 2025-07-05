@@ -1,10 +1,10 @@
 import { getRedis } from "../config/redis";
-import { User } from "./types";
+import { User } from "../types";
 export async function register(userName: string) {
     try {
         const redis = getRedis();
         const redisFetch = await redis.lrange('users', 0, -1) || '[]';
-        const existingUsers: User[] = redisFetch.map((user) => JSON.parse(user));
+        const existingUsers: User[] = redisFetch.map((user: string) => JSON.parse(user));
     
         if (existingUsers.some((user: User) => user.userName == userName)) 
             return {success: false, message: 'Username is taken'};
